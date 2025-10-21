@@ -324,7 +324,7 @@ class XArmRobot(Robot):
         if self.robot is None:
             return
         # threhold xyz to be in  min max
-        ret = self.robot.set_servo_angle_j(joints, wait=False, is_radian=True)
+        ret = self.robot.set_servo_angle_j(joints, speed=10, wait=False, is_radian=True)    # TODO：这里速度可以改小避免剧烈运动
         if ret in [1, 9]:
             self._clear_error_states()
 
@@ -336,12 +336,12 @@ class XArmRobot(Robot):
             "joint_positions": joints,  # rotational joint + gripper state
             "joint_velocities": joints,
             "ee_pos_quat": pos_quat,
-            "gripper_position": np.array(state.gripper_pos()),
+            "gripper_position": np.array([state.gripper_pos()]),
         }
 
 
 def main():
-    ip = "192.168.1.226"
+    ip = "192.168.1.209"    # test in right arm
     robot = XArmRobot(ip)
     import time
 

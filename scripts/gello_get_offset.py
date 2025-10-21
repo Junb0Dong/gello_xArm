@@ -55,16 +55,18 @@ def get_config(args: Args) -> None:
 
     def get_error(offset: float, index: int, joint_state: np.ndarray) -> float:
         joint_sign_i = args.joint_signs[index]
-        joint_i = joint_sign_i * (joint_state[index] - offset)
+        joint_i = joint_sign_i * (joint_state[index] - offset) 
         start_i = args.start_joints[index]
-        return np.abs(joint_i - start_i)
+        return np.abs(joint_i - start_i)    # 返回的是绝对值
 
     for _ in range(10):
         driver.get_joints()  # warmup
 
     for _ in range(1):
         best_offsets = []
+        best_errors = []
         curr_joints = driver.get_joints()
+        print("curr_joints: ", curr_joints * (180.0 / np.pi))
         for i in range(args.num_robot_joints):
             best_offset = 0
             best_error = 1e6
@@ -74,10 +76,14 @@ def get_config(args: Args) -> None:
                 error = get_error(offset, i, curr_joints)
                 if error < best_error:
                     best_error = error
-                    best_offset = offset
+                    best_offset = offset    # 最小error对应的offset
+            best_errors.append(best_error)
             best_offsets.append(best_offset)
         print()
+        print("best errors in radian      : ", [f"{x:.3f}" for x in best_errors])
+        print("best errors in degree      : ", [f"{x:.3f}" for x in np.rad2deg(best_errors)])
         print("best offsets               : ", [f"{x:.3f}" for x in best_offsets])
+        print("ideal arm angle: ", np.rad2deg(args.start_joints))
         print(
             "best offsets function of pi: ["
             + ", ".join([f"{int(np.round(x/(np.pi/2)))}*np.pi/2" for x in best_offsets])

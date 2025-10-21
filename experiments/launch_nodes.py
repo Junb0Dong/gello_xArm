@@ -12,7 +12,7 @@ class Args:
     robot: str = "xarm"
     robot_port: int = 6001
     hostname: str = "127.0.0.1"
-    robot_ip: str = "192.168.1.10"
+    robot_ip: str = "192.168.1.213"
 
 
 def launch_robot_server(args: Args):
@@ -78,6 +78,13 @@ def launch_robot_server(args: Args):
             from gello.robots.panda import PandaRobot
 
             robot = PandaRobot(robot_ip=args.robot_ip)
+        elif args.robot == "bimanual_xarm":
+            from gello.robots.xarm_robot import XArmRobot
+
+            # IP for the bimanual robot setup is hardcoded
+            _robot_l = XArmRobot(ip="192.168.1.213")    # 左臂
+            _robot_r = XArmRobot(ip="192.168.1.209")    # 右臂
+            robot = BimanualRobot(_robot_l, _robot_r)
         elif args.robot == "bimanual_ur":
             from gello.robots.ur import URRobot
 

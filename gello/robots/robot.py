@@ -116,7 +116,7 @@ class BimanualRobot(Robot):
                 print(l_obs[k])
                 print(r_obs[k])
                 raise RuntimeError()
-
+        print(return_obs["joint_positions"])
         return return_obs
 
 

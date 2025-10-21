@@ -20,6 +20,8 @@ def print_color(*args, color=None, attrs=(), **kwargs):
     print(*args, **kwargs)
 
 
+from typing import Optional, Tuple  # 确保已经导入 Optional
+
 @dataclass
 class Args:
     agent: str = "none"
@@ -27,7 +29,7 @@ class Args:
     wrist_camera_port: int = 5000
     base_camera_port: int = 5001
     hostname: str = "127.0.0.1"
-    robot_type: str = None  # only needed for quest agent or spacemouse agent
+    robot_type: Optional[str] = None  # only needed for quest agent or spacemouse agent
     hz: int = 100
     start_joints: Optional[Tuple[float, ...]] = None
 
@@ -60,8 +62,8 @@ def main(args):
     if args.bimanual:
         if args.agent == "gello":
             # dynamixel control box port map (to distinguish left and right gello)
-            right = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7WBG6A-if00-port0"
-            left = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT7WBEIA-if00-port0"
+            right = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTA0VTIS-if00-port0"
+            left = "/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FTAD3ZBL-if00-port0"
             agent_cfg = {
                 "_target_": "gello.agents.agent.BimanualAgent",
                 "agent_left": {
@@ -111,15 +113,16 @@ def main(args):
 
         # System setup specific. This reset configuration works well on our setup. If you are mounting the robot
         # differently, you need a separate reset joint configuration.
-        reset_joints_left = np.deg2rad([0, -90, -90, -90, 90, 0, 0])
-        reset_joints_right = np.deg2rad([0, -90, 90, -90, -90, 0, 0])
+        reset_joints_left = np.deg2rad([0, 18, 0, 80, 0, 80, 0, 0])
+        reset_joints_right = np.deg2rad([0, 18, 0, 80, 0, 80, 0, 0])
         reset_joints = np.concatenate([reset_joints_left, reset_joints_right])
         curr_joints = env.get_obs()["joint_positions"]
         max_delta = (np.abs(curr_joints - reset_joints)).max()
+        print("max_delta:", max_delta)
         steps = min(int(max_delta / 0.01), 100)
 
         for jnt in np.linspace(curr_joints, reset_joints, steps):
-            env.step(jnt)
+            env.step(jnt)   # FIXME：这行代码是否执行？我猜测这行代码是为了让机械臂运动到设定的位置，这样就不用每次都逐个关节的进行设定了
     else:
         if args.agent == "gello":
             gello_port = args.gello_port

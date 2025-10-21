@@ -503,6 +503,7 @@ class DynamixelDriver(DynamixelDriverProtocol):
 
     def get_joints(self) -> np.ndarray:
         if self._is_fake:
+            print("fake in sim not in real!!!")
             return self._fake_joint_angles.copy()
 
         # Return a copy of the joint_angles array to avoid race conditions
